@@ -1,0 +1,47 @@
+[project]
+name = "checkin"
+description = "Daily checkin rewards system"
+authors = []
+telemetry = true
+cache_dir = "./.clarinet/cache"
+requirements = []
+
+[contracts.monday-rewards]
+path = "contracts/monday-rewards.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.tuesday-rewards]
+path = "contracts/tuesday-rewards.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.wednesday-rewards]
+path = "contracts/wednesday-rewards.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.thursday-rewards]
+path = "contracts/thursday-rewards.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.friday-rewards]
+path = "contracts/friday-rewards.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.saturday-rewards]
+path = "contracts/saturday-rewards.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.sunday-rewards]
+path = "contracts/sunday-rewards.clar"
+clarity_version = 2
+epoch = 2.5
+
+[contracts.checkin]
+path = "contracts/checkin.clar"
+clarity_version = 2
+epoch = 2.5
