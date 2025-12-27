@@ -171,4 +171,3 @@ For issues related to:
 ## Acknowledgments
 
 Built for the Stacks Builder Rewards program by Talent App. Special thanks to the Stacks and Xverse teams for their excellent developer tools.
-
