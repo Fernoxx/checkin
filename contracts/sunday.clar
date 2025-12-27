@@ -1,7 +1,3 @@
-
-;; Sunday Rewards Contract
-;; Day Index: 0 (Sunday)
-
 (define-constant contract-owner tx-sender)
 (define-constant err-not-authorized (err u100))
 (define-constant err-wrong-day (err u101))

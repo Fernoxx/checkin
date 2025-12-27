@@ -1,7 +1,3 @@
-
-;; Monday Rewards Contract
-;; Day Index: 1 (Monday)
-
 (define-constant contract-owner tx-sender)
 (define-constant err-not-authorized (err u100))
 (define-constant err-wrong-day (err u101))
@@ -40,22 +36,6 @@
         )
         ;; Check if it is Monday
         (asserts! (is-eq current-day required-day) err-wrong-day)
-        
-        ;; Check if user claimed recently (approx 1 week cooling, or at least not same day)
-        ;; We just check if last-claim was > (current height - ~1000 blocks) or similar? 
-        ;; Or simpler: just check that the last claim wasn't TODAY.
-        ;; Since we only allow claiming on Monday, if they claimed last Monday, that is fine.
-        ;; We just need to ensure they haven't claimed *this specific* Monday.
-        ;; We can do this by checking if (block-height - last-claim) > 100 blocks? 
-        ;; Or better: store the claim-day index (epoch day).
-        ;; For simplicity in this v1: We assume if block diff is < 1000 (approx 10 mins - 1 hour range depending on chain), it's same session.
-        ;; Actually, "only next monday" implies 1 week cooldown.
-        ;; If we store the block height, we can ensure current-height > last-claim + 1000 (roughly 2.7 hours on BTC/Stacks)
-        ;; Just ensuring it is not in the same short window.
-        ;; Let's assume 1 claim per specific Monday instance.
-        ;; If they claim at height H, next claim must be H + >2000? (approx 5-6 hours).
-        ;; Stacks blocks are anchored to BTC. 144 blocks/day.
-        ;; So 1 week = 144 * 7 = 1008 blocks.
         
         (asserts! (> block-height (+ last-claim u1000)) err-already-claimed)
 
