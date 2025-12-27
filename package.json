@@ -1,34 +1,47 @@
 {
-  "name": "stacks-xverse-checkin",
+  "name": "stacks-builder-challenge-tests",
   "version": "1.0.0",
-  "description": "Daily checkin app for Stacks Xverse wallet users",
+  "description": "Run unit tests on this project.",
   "type": "module",
+  "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview",
-    "test": "vitest",
-    "deploy:contract": "clarinet deploy"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "vitest run",
+    "test:report": "vitest run -- --coverage --costs",
+    "test:watch": "chokidar \"tests/**/*.ts\" \"contracts/**/*.clar\" -c \"npm run test:report\""
   },
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "@stacks/connect": "^7.0.0",
-    "@stacks/connect-react": "^7.0.0",
-    "@stacks/transactions": "^6.11.0",
-    "@stacks/network": "^6.11.0",
-    "@stacks/auth": "^6.11.0",
-    "@xverse/core": "^1.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.20.0",
-    "date-fns": "^2.30.0"
+    "@hirosystems/chainhooks-client": "^1.0.0",
+    "@hirosystems/clarinet-sdk": "^3.6.0",
+    "@reown/appkit": "^1.8.15",
+    "@reown/appkit-adapter-wagmi": "^1.8.15",
+    "@stacks/connect": "^8.2.3",
+    "@stacks/network": "^7.2.0",
+    "@stacks/stacks-blockchain-api-types": "^7.14.1",
+    "@stacks/transactions": "^7.3.0",
+    "@stacks/wallet-sdk": "^7.2.0",
+    "@types/node": "^24.4.0",
+    "@vercel/analytics": "^1.6.1",
+    "buffer": "^6.0.3",
+    "chokidar-cli": "^3.0.0",
+    "next": "^16.0.10",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "vitest": "^3.2.4",
+    "vitest-environment-clarinet": "^2.3.0"
   },
+  "main": "vitest.config.js",
+  "directories": {
+    "test": "tests"
+  },
+  "keywords": [],
   "devDependencies": {
-    "@types/react": "^18.2.43",
-    "@types/react-dom": "^18.2.17",
-    "@vitejs/plugin-react": "^4.2.1",
-    "typescript": "^5.3.3",
-    "vite": "^5.0.8",
-    "vitest": "^1.0.4"
+    "@types/react": "19.2.7",
+    "typescript": "5.9.3"
   }
 }
-
