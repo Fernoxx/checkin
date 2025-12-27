@@ -1,0 +1,17 @@
+[network]
+events_observer = { enabled = true }
+
+[accounts.deployer]
+mnemonic = "fetch outside black test wash cover just actual execute nice door want airport betray quantum stamp fish act pen trust portion fatigue scissors vague"
+balance = 100000000000000
+
+[accounts.wallet_1]
+mnemonic = "spoil sock coyote include verify comic jacket gain beauty tank flush victory illness edge reveal shallow addict audit coin plan plastic evidence strong crash"
+balance = 100000000000000
+
+[accounts.wallet_2]
+mnemonic = "arrange scale orient half ugly kid bike twin magnet joke hurt fiber ethics blast alpha muscle liquid camp enforce logic holiday grow decrease bachelor"
+balance = 100000000000000
+
+[devnet]
+auto_deploy_contracts = true
