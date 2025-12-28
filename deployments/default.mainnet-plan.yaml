@@ -1,0 +1,67 @@
+---
+id: 0
+name: Mainnet deployment
+network: mainnet
+stacks-node: "https://stacks-node-api.mainnet.stacks.co"
+bitcoin-node: "http://blockstack:blockstacksystem@bitcoin.blockstack.com:8332"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - contract-publish:
+            contract-name: checkin
+            expected-sender: SP39XP39FP5SPWHKGAH0XK9M15PWZ2JNCCG9W3CX8
+            cost: 30060
+            path: contracts/checkin.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
+            contract-name: friday
+            expected-sender: SP39XP39FP5SPWHKGAH0XK9M15PWZ2JNCCG9W3CX8
+            cost: 81220
+            path: contracts/friday.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
+            contract-name: monday
+            expected-sender: SP39XP39FP5SPWHKGAH0XK9M15PWZ2JNCCG9W3CX8
+            cost: 81220
+            path: contracts/monday.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
+            contract-name: saturday
+            expected-sender: SP39XP39FP5SPWHKGAH0XK9M15PWZ2JNCCG9W3CX8
+            cost: 81280
+            path: contracts/saturday.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
+            contract-name: sunday
+            expected-sender: SP39XP39FP5SPWHKGAH0XK9M15PWZ2JNCCG9W3CX8
+            cost: 81220
+            path: contracts/sunday.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
+            contract-name: thursday
+            expected-sender: SP39XP39FP5SPWHKGAH0XK9M15PWZ2JNCCG9W3CX8
+            cost: 81280
+            path: contracts/thursday.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
+            contract-name: tuesday
+            expected-sender: SP39XP39FP5SPWHKGAH0XK9M15PWZ2JNCCG9W3CX8
+            cost: 81250
+            path: contracts/tuesday.clar
+            anchor-block-only: true
+            clarity-version: 3
+        - contract-publish:
+            contract-name: wednesday
+            expected-sender: SP39XP39FP5SPWHKGAH0XK9M15PWZ2JNCCG9W3CX8
+            cost: 81310
+            path: contracts/wednesday.clar
+            anchor-block-only: true
+            clarity-version: 3
+      epoch: "3.0"
