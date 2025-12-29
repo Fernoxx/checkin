@@ -25,39 +25,12 @@ export default function WalletSelector({ onConnect }: WalletSelectorProps) {
       return;
     }
     try {
-      // Initialize Reown AppKit dynamically
-      const { createAppKit } = await import('@reown/appkit/react');
-      const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
-      
-      if (!projectId) {
-        throw new Error('WalletConnect Project ID not found');
-      }
-      
-      const metadata = {
-        name: 'Stacks Xverse Checkin',
-        description: 'Daily checkin app for Stacks Builder Rewards',
-        url: typeof window !== 'undefined' ? window.location.origin : '',
-        icons: [`${typeof window !== 'undefined' ? window.location.origin : ''}/icon.png`],
-      };
-      
-      const wagmiConfig = createAppKit({
-        adapters: [],
-        networks: [],
-        projectId,
-        metadata,
-        features: {
-          analytics: true,
-          email: false,
-          socials: false,
-        },
-      });
-      
-      // Open the modal
-      wagmiConfig.open();
-      setSelectedMethod('reown');
-      onConnect();
+      // WalletConnect is for EVM chains, not Stacks
+      // For Stacks, we only support Stacks Connect (Xverse, Leather)
+      alert('WalletConnect is for EVM chains. For Stacks, please use "Stacks Wallets" option (Xverse, Leather).');
+      setAppKitError(true);
     } catch (error) {
-      console.error('Error initializing Reown AppKit:', error);
+      console.error('Error with WalletConnect:', error);
       setAppKitError(true);
       alert('WalletConnect is not available. Please use Stacks Wallets instead.');
     }
@@ -114,15 +87,15 @@ export default function WalletSelector({ onConnect }: WalletSelectorProps) {
             <div className={styles.walletLogo}>🔷</div>
             <div className={styles.walletInfo}>
               <h3>WalletConnect</h3>
-              <p>Connect via Reown AppKit (600+ wallets)</p>
+              <p>For EVM chains only (Stacks uses Stacks Connect)</p>
             </div>
             <button
               className={styles.connectButton}
               onClick={handleReownConnect}
-              disabled={selectedMethod === 'stacks' || !hasProjectId || appKitError}
-              title={!hasProjectId ? 'WalletConnect Project ID required' : appKitError ? 'WalletConnect unavailable' : ''}
+              disabled={true}
+              title="WalletConnect is for EVM chains. Use Stacks Wallets for Stacks."
             >
-              {appKitError ? 'Unavailable' : !hasProjectId ? 'Project ID Required' : 'Connect via WalletConnect'}
+              Not Available for Stacks
             </button>
           </div>
         </div>
