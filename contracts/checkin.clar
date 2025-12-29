@@ -1,90 +1,114 @@
-;; Checkin Smart Contract for Stacks Xverse
-;; Tracks daily checkins and rewards users
+;; Checkin Smart Contract for Stacks Xverse - V3
+;; Tracks daily checkins and rewards users with 1.5 STX (1 STX fee)
+;; Day cycle: ~144 blocks (approx 24 hours)
 
-(define-constant ERR-ALREADY-CHECKED-IN (err u1001))
-(define-constant ERR-NOT-AUTHORIZED (err u1002))
+(define-constant contract-owner tx-sender)
+(define-constant err-owner-only (err u100))
+(define-constant err-already-checked-in (err u101))
+(define-constant err-insufficient-funds (err u102))
+(define-constant err-contract-inactive (err u103))
 
-(define-data-var total-checkins uint u0)
-(define-data-var contract-owner principal (as-contract tx-sender))
+;; Fee and Reward constants
+(define-constant app-fee-check-in u1000000)     ;; 1 STX per check-in
+(define-constant reward-amount u1500000)        ;; 1.5 STX reward
 
-;; Store checkin records: (user -> (day-index -> bool))
-;; day-index = block-height / blocks-per-day (approx 144 blocks per day)
-(define-map checkins { user: principal, day-index: uint } bool)
+;; Data Variables
+(define-data-var total-fees-collected uint u0)
+(define-data-var total-rewards-distributed uint u0)
+(define-data-var reward-pool uint u0)
+(define-data-var contract-active bool true)
 
-;; Store user stats: (user -> { streak: uint, total: uint, last-checkin-day: uint })
-(define-map user-stats principal { streak: uint, total: uint, last-checkin-day: uint })
+;; Maps
+;; Store check-in status: user -> day-index -> processed?
+(define-map check-in-status { user: principal, day: uint } bool)
+;; Store total check-ins per user
+(define-map user-stats principal { total-checkins: uint, last-checkin-day: uint })
 
-;; Calculate day index from block height (blocks per day ~144 for Stacks)
-(define-private (get-day-index (block-height uint))
+;; Private Functions
+(define-private (get-day-index)
   (/ block-height u144)
 )
 
-;; Check if user has checked in today
-;; Note: Requires block height parameter since read-only functions can't access current block
-(define-read-only (has-checked-in-today (user principal) (current-block-height uint))
-  (let ((today (get-day-index current-block-height)))
-    (default-to false (map-get? checkins { user: user, day-index: today }))
-  )
-)
+;; Public Functions
 
-;; Get user statistics
-(define-read-only (get-user-stats (user principal))
-  (map-get? user-stats user)
-)
-
-;; Get total checkins count
-(define-read-only (get-total-checkins)
-  (var-get total-checkins)
-)
-
-;; Main checkin function
-(define-public (checkin)
-  (let ((user tx-sender)
-        (current-block block-height)
-        (today (get-day-index current-block)))
-    (begin
-      ;; Check if already checked in today
-      (asserts! (not (default-to false (map-get? checkins { user: user, day-index: today }))) ERR-ALREADY-CHECKED-IN)
-      
-      ;; Record checkin
-      (map-set checkins { user: user, day-index: today } true)
-      
-      ;; Update user stats
-      (let ((current-stats (default-to { streak: u0, total: u0, last-checkin-day: u0 } (map-get? user-stats user))))
-        (let ((last-day (get last-checkin-day current-stats))
-              (current-streak (get streak current-stats))
-              (current-total (get total current-stats)))
-          (let ((new-streak 
-                  (if (is-eq last-day u0)
-                    u1
-                    (if (is-eq last-day (- today u1))
-                      (+ current-streak u1)
-                      u1
-                    )
-                  )))
-            (map-set user-stats user {
-              streak: new-streak,
-              total: (+ current-total u1),
-              last-checkin-day: today
-            })
-          )
-        )
-      )
-      
-      ;; Update total checkins
-      (var-set total-checkins (+ (var-get total-checkins) u1))
-      
-      (ok true)
+;; Daily Check-In
+;; User pays 1 STX, receives 1.5 STX
+(define-public (daily-check-in)
+  (let
+    (
+      (caller tx-sender)
+      (current-day (get-day-index))
+      (already-checked-in (default-to false (map-get? check-in-status { user: caller, day: current-day })))
     )
-  )
-)
+    (asserts! (var-get contract-active) err-contract-inactive)
+    (asserts! (not already-checked-in) err-already-checked-in)
+    (asserts! (>= (var-get reward-pool) reward-amount) err-insufficient-funds)
 
-;; Admin function to reset (for testing)
-(define-public (reset-checkin (user principal) (day-index uint))
-  (begin
-    (asserts! (is-eq tx-sender (var-get contract-owner)) ERR-NOT-AUTHORIZED)
-    (map-delete checkins { user: user, day-index: day-index })
+    ;; 1. User pays Fee (1 STX)
+    (try! (stx-transfer? app-fee-check-in caller (as-contract tx-sender)))
+
+    ;; 2. Contract pays Reward (1.5 STX)
+    (try! (as-contract (stx-transfer? reward-amount tx-sender caller)))
+
+    ;; 3. Update State
+    (map-set check-in-status { user: caller, day: current-day } true)
+    
+    (let ((current-stats (default-to { total-checkins: u0, last-checkin-day: u0 } (map-get? user-stats caller))))
+        (map-set user-stats caller {
+            total-checkins: (+ (get total-checkins current-stats) u1),
+            last-checkin-day: current-day
+        })
+    )
+
+    ;; 4. Update Globals
+    (var-set total-fees-collected (+ (var-get total-fees-collected) app-fee-check-in))
+    (var-set total-rewards-distributed (+ (var-get total-rewards-distributed) reward-amount))
+    (var-set reward-pool (- (var-get reward-pool) reward-amount))
+
+    (print {
+      event: "daily-check-in",
+      user: caller,
+      day: current-day,
+      fee: app-fee-check-in,
+      reward: reward-amount
+    })
+
     (ok true)
   )
+)
+
+;; Owner: Fund the reward pool
+(define-public (fund-rewards (amount uint))
+  (begin
+    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (try! (stx-transfer? amount tx-sender (as-contract tx-sender)))
+    (var-set reward-pool (+ (var-get reward-pool) amount))
+    (ok true)
+  )
+)
+
+;; Owner: Withdraw collected fees (or excess funds)
+(define-public (withdraw-funds (amount uint))
+  (begin
+    (asserts! (is-eq tx-sender contract-owner) err-owner-only)
+    (try! (as-contract (stx-transfer? amount tx-sender contract-owner)))
+    (ok true)
+  )
+)
+
+;; Read-only functions
+(define-read-only (get-fee-summary)
+  (ok {
+    total-fees-collected: (var-get total-fees-collected),
+    total-rewards-distributed: (var-get total-rewards-distributed),
+    current-reward-pool: (var-get reward-pool),
+    contract-active: (var-get contract-active),
+    check-in-fee: app-fee-check-in,
+    reward-amount: reward-amount
+  })
+)
+
+(define-read-only (has-checked-in-today (user principal))
+  (ok (default-to false (map-get? check-in-status { user: user, day: (get-day-index) })))
 )
 
