@@ -25,40 +25,53 @@ export default function Home() {
 
   useEffect(() => {
     // Only initialize on client side
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {
+      setIsLoading(false);
+      return;
+    }
     
     let mounted = true;
+    let initTimer: NodeJS.Timeout;
     
-    // Use a small delay to ensure window is fully ready
-    const initTimer = setTimeout(() => {
-      Promise.resolve().then(async () => {
-        try {
-          const { AppConfig, UserSession } = await import('@stacks/connect');
-          
-          if (!mounted) return;
-          
-          const appConfig = new AppConfig(['store_write', 'publish_data']);
-          const session = new UserSession({ appConfig });
-          setUserSession(session);
-          
-          if (session.isUserSignedIn()) {
-            setUserData(session.loadUserData());
-          }
-        } catch (error) {
-          if (!mounted) return;
-          console.error('Error initializing Stacks Connect:', error);
-          setInitError(error instanceof Error ? error.message : 'Failed to initialize Stacks Connect');
-        } finally {
-          if (mounted) {
-            setIsLoading(false);
-          }
+    const initialize = async () => {
+      try {
+        // Use dynamic import with error handling
+        const stacksConnect = await import('@stacks/connect').catch((err) => {
+          console.error('Failed to load @stacks/connect module:', err);
+          throw err;
+        });
+        
+        if (!mounted) return;
+        
+        const { AppConfig, UserSession } = stacksConnect;
+        const appConfig = new AppConfig(['store_write', 'publish_data']);
+        const session = new UserSession({ appConfig });
+        
+        if (!mounted) return;
+        
+        setUserSession(session);
+        
+        if (session.isUserSignedIn()) {
+          setUserData(session.loadUserData());
         }
-      });
-    }, 100);
+      } catch (error) {
+        if (!mounted) return;
+        console.error('Error initializing Stacks Connect:', error);
+        const errorMessage = error instanceof Error ? error.message : 'Failed to initialize Stacks Connect';
+        setInitError(errorMessage);
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+    
+    // Small delay to ensure DOM is ready
+    initTimer = setTimeout(initialize, 50);
 
     return () => {
       mounted = false;
-      clearTimeout(initTimer);
+      if (initTimer) clearTimeout(initTimer);
     };
   }, []);
 
