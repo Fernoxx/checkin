@@ -24,10 +24,12 @@
 ;; Store total check-ins per user
 (define-map user-stats principal { total-checkins: uint, last-checkin-day: uint })
 
+
 ;; Private Functions
 (define-private (get-day-index)
-  (/ block-height u144)
+  (/ stacks-block-height u144)
 )
+
 
 ;; Public Functions
 
