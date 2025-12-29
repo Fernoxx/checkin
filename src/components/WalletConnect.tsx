@@ -36,3 +36,5 @@ function WalletConnect({ onConnect }: WalletConnectProps) {
 
 export default WalletConnect
 
+
+

@@ -1,11 +1,11 @@
-.wallet-connect {
+.walletConnect {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 400px;
 }
 
-.wallet-connect-card {
+.walletConnectCard {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -16,12 +16,12 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
 
-.wallet-icon {
+.walletIcon {
   font-size: 4rem;
   margin-bottom: 1.5rem;
 }
 
-.wallet-connect-card h2 {
+.walletConnectCard h2 {
   font-size: 1.75rem;
   margin-bottom: 1rem;
   color: var(--text);
@@ -34,7 +34,7 @@
   font-size: 1.05rem;
 }
 
-.connect-button {
+.connectButton {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: white;
   border: none;
@@ -48,20 +48,18 @@
   margin-bottom: 1.5rem;
 }
 
-.connect-button:hover {
+.connectButton:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(85, 70, 255, 0.4);
 }
 
-.connect-button:active {
+.connectButton:active {
   transform: translateY(0);
 }
 
-.info-text {
+.infoText {
   color: var(--text-secondary);
   font-size: 0.9rem;
   line-height: 1.5;
 }
-
-
 

@@ -1,18 +1,21 @@
-# Stacks Xverse Checkin App
+# Stacks Xverse Checkin App - V3
 
 A daily checkin application for Stacks Xverse wallet users, built for the Stacks Builder Rewards program by Talent App.
 
 ## Overview
 
-This app allows Stacks builders to check in daily using their Xverse wallet, track their checkin streaks, and participate in the Stacks Builder Rewards program. The app integrates with the Stacks blockchain using smart contracts to record checkins on-chain.
+This app allows Stacks builders to check in daily using their Xverse wallet, track their checkin streaks, and participate in the Stacks Builder Rewards program. The app integrates with the Stacks blockchain using smart contracts to record checkins on-chain with a **tiered reward system**.
 
 ## Features
 
 - 🔐 **Xverse Wallet Integration** - Connect securely using Stacks Connect
-- ✅ **Daily Checkin** - Check in once per day to maintain your streak
+- ✅ **Tiered Daily Checkin** - Two-tier reward system:
+  - **Tier 1 (Welcome)**: Pay 1 STX → Get 1.5 STX reward (one-time)
+  - **Tier 2 (Daily)**: Pay 0.2 STX → Get 0.25 STX reward (daily)
 - 🔥 **Streak Tracking** - Track your daily checkin streak
-- 📊 **Statistics** - View your total checkins and community stats
+- 📊 **Statistics Dashboard** - View your total checkins, reward pool, and community stats
 - ⛓️ **On-Chain Verification** - All checkins are recorded on the Stacks blockchain
+- 🔔 **Chainhook Integration** - Real-time event tracking via Hiro Chainhooks
 
 ## Stacks Builder Rewards
 
@@ -42,12 +45,19 @@ cd checkin
 npm install
 ```
 
-3. Update the contract address in `src/components/CheckinDashboard.tsx`:
-```typescript
-const CONTRACT_ADDRESS = 'YOUR_CONTRACT_ADDRESS'
+3. Create a `.env.local` file (copy from `.env.example`):
+```bash
+cp .env.example .env.local
 ```
 
-4. Start the development server:
+4. Update environment variables in `.env.local`:
+```env
+NEXT_PUBLIC_CONTRACT_ADDRESS=YOUR_CONTRACT_ADDRESS.checkin
+NEXT_PUBLIC_NETWORK=testnet
+CHAINHOOK_AUTH_SECRET=your-secret-here
+```
+
+5. Start the development server:
 ```bash
 npm run dev
 ```
@@ -55,6 +65,13 @@ npm run dev
 The app will open at `http://localhost:3000`
 
 ## Smart Contract Deployment
+
+### Contract V3 Features
+
+- **Tiered Rewards**: Initial welcome bonus + daily checkins
+- **Fee Collection**: Transparent fee structure
+- **Reward Pool Management**: Owner can fund and manage rewards
+- **User Statistics**: Track total checkins and last checkin day
 
 ### Using Clarinet
 
@@ -65,10 +82,10 @@ npm install -g @stacks/clarinet
 
 2. Deploy the contract:
 ```bash
-clarinet deploy
+clarinet deploy --testnet
 ```
 
-3. Update the `CONTRACT_ADDRESS` in `CheckinDashboard.tsx` with your deployed contract address.
+3. Update the `NEXT_PUBLIC_CONTRACT_ADDRESS` in `.env.local` with your deployed contract address.
 
 ### Manual Deployment
 
@@ -78,57 +95,84 @@ You can also deploy the contract manually using the Stacks CLI or Hiro Explorer.
 
 ### Network Selection
 
-In `src/components/CheckinDashboard.tsx`, you can switch between testnet and mainnet:
+In `.env.local`, you can switch between testnet and mainnet:
 
-```typescript
-// For testnet
-const NETWORK = new StacksTestnet()
-
-// For mainnet
-const NETWORK = new StacksMainnet()
+```env
+NEXT_PUBLIC_NETWORK=testnet  # or mainnet
 ```
+
+### Contract Address
+
+Format: `ADDRESS.CONTRACT_NAME`
+Example: `ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.checkin`
 
 ## Project Structure
 
 ```
 checkin/
+├── app/
+│   ├── api/
+│   │   └── chainhook/
+│   │       └── route.ts          # Chainhook webhook endpoint
+│   ├── layout.tsx                # Root layout
+│   ├── page.tsx                  # Main page
+│   ├── providers.tsx            # Stacks Connect provider
+│   └── globals.css               # Global styles
+├── components/
+│   ├── CheckinDashboard.tsx     # Main dashboard component
+│   ├── CheckinDashboard.module.css
+│   ├── WalletConnect.tsx         # Wallet connection component
+│   └── WalletConnect.module.css
 ├── contracts/
-│   └── checkin.clar          # Stacks smart contract
-├── src/
-│   ├── components/
-│   │   ├── CheckinDashboard.tsx
-│   │   ├── CheckinDashboard.css
-│   │   ├── WalletConnect.tsx
-│   │   └── WalletConnect.css
-│   ├── App.tsx
-│   ├── App.css
-│   ├── main.tsx
-│   └── index.css
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-└── README.md
+│   ├── checkin.clar              # Main V3 contract
+│   ├── monday.clar               # Day-specific contracts
+│   ├── tuesday.clar
+│   └── ...
+├── types/
+│   └── index.ts                  # TypeScript types
+├── tests/
+│   └── daily_checkin_v3.test.ts  # Contract tests
+├── chainhooks/
+│   └── builder-rewards-v3.json   # Chainhook configuration
+├── next.config.js                # Next.js configuration
+├── tsconfig.json                 # TypeScript configuration
+└── package.json
 ```
 
 ## Smart Contract Functions
 
 ### Public Functions
 
-- `checkin()` - Record a daily checkin for the caller
-- `reset-checkin(user, date)` - Admin function to reset a checkin (testing only)
+- `daily-check-in()` - Record a daily checkin (handles both tiers automatically)
+- `fund-rewards(amount)` - Owner function to fund the reward pool
+- `withdraw-funds(amount)` - Owner function to withdraw collected fees
 
 ### Read-Only Functions
 
 - `has-checked-in-today(user)` - Check if a user has checked in today
-- `get-user-stats(user)` - Get user statistics (streak, total, last checkin)
-- `get-total-checkins()` - Get total checkins across all users
+- `has-claimed-initial-reward(user)` - Check if user claimed welcome bonus
+- `get-user-stats(user)` - Get user statistics (total checkins, last checkin day)
+- `get-fee-summary()` - Get contract fee and reward information
 
 ## Usage
 
 1. **Connect Wallet**: Click "Connect Wallet" and approve the connection in your Xverse wallet
-2. **Check In**: Click "Check In Now" to record your daily checkin
+2. **Check In**: 
+   - First time: Pay 1 STX to receive 1.5 STX (Welcome Bonus)
+   - Daily: Pay 0.2 STX to receive 0.25 STX
 3. **Track Progress**: View your streak, total checkins, and community stats
 4. **Maintain Streak**: Check in daily to maintain and grow your streak
+
+## Chainhook Integration
+
+The app includes a Chainhook webhook endpoint at `/api/chainhook` that processes on-chain events:
+
+- Tracks daily check-ins
+- Monitors reward claims
+- Records score submissions
+- Provides real-time event statistics
+
+Configure your Chainhook to POST to: `https://your-domain.com/api/chainhook`
 
 ## Development
 
@@ -138,20 +182,56 @@ checkin/
 npm run build
 ```
 
-### Preview Production Build
+### Start Production Server
 
 ```bash
-npm run preview
+npm start
+```
+
+### Run Tests
+
+```bash
+npm test
+```
+
+### Test with Coverage
+
+```bash
+npm run test:report
 ```
 
 ## Technologies Used
 
-- **React** - UI framework
+- **Next.js 16** - React framework with App Router
 - **TypeScript** - Type safety
-- **Vite** - Build tool
-- **@stacks/connect-react** - Wallet integration
+- **Stacks Connect v8** - Wallet integration
 - **@stacks/transactions** - Blockchain interactions
 - **Clarinet** - Smart contract development
+- **Vitest** - Testing framework
+- **Hiro Chainhooks** - Event tracking
+
+## Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `NEXT_PUBLIC_CONTRACT_ADDRESS` | Contract address in format `ADDRESS.NAME` | Yes |
+| `NEXT_PUBLIC_NETWORK` | Network: `testnet` or `mainnet` | Yes |
+| `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` | WalletConnect Project ID for Reown AppKit | No |
+| `CHAINHOOK_AUTH_SECRET` | Secret for chainhook webhook authentication | No |
+
+## Deployment
+
+### Vercel
+
+1. Push to GitHub
+2. Import project in Vercel
+3. Add environment variables
+4. Deploy
+
+### Netlify
+
+1. Install Netlify CLI: `npm install -g netlify-cli`
+2. Deploy: `netlify deploy --prod`
 
 ## Contributing
 
@@ -167,7 +247,22 @@ For issues related to:
 - **Stacks Builder Rewards**: Visit [Talent App](https://talent.app)
 - **Xverse Wallet**: Visit [Xverse Docs](https://docs.xverse.app)
 - **Stacks Development**: Visit [Stacks Docs](https://docs.stacks.co)
+- **Hiro Chainhooks**: Visit [Hiro Docs](https://docs.hiro.so)
 
 ## Acknowledgments
 
 Built for the Stacks Builder Rewards program by Talent App. Special thanks to the Stacks and Xverse teams for their excellent developer tools.
+
+## Changelog
+
+### V3 (Current)
+- Tiered reward system (Welcome + Daily)
+- Improved fee structure
+- Enhanced statistics dashboard
+- Chainhook integration
+- Next.js migration
+
+### V2
+- Basic daily checkin
+- Streak tracking
+- User statistics

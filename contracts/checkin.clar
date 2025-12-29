@@ -50,8 +50,10 @@
       ;; Tier 1: Initial (1.0 fee -> 1.5 reward)
       (begin
         (asserts! (>= (var-get reward-pool) reward-initial) err-insufficient-funds)
+        ;; Transfer fee FROM caller TO contract
         (try! (stx-transfer? fee-initial caller (as-contract tx-sender)))
-        (try! (as-contract (stx-transfer? reward-initial tx-sender caller)))
+        ;; Transfer reward FROM contract TO caller
+        (try! (as-contract (stx-transfer? reward-initial (as-contract tx-sender) caller)))
         
         ;; Update Globals
         (var-set total-fees-collected (+ (var-get total-fees-collected) fee-initial))
@@ -66,8 +68,10 @@
       ;; Tier 2: Daily (0.2 fee -> 0.25 reward)
       (begin
         (asserts! (>= (var-get reward-pool) reward-daily) err-insufficient-funds)
+        ;; Transfer fee FROM caller TO contract
         (try! (stx-transfer? fee-daily caller (as-contract tx-sender)))
-        (try! (as-contract (stx-transfer? reward-daily tx-sender caller)))
+        ;; Transfer reward FROM contract TO caller
+        (try! (as-contract (stx-transfer? reward-daily (as-contract tx-sender) caller)))
         
         ;; Update Globals
         (var-set total-fees-collected (+ (var-get total-fees-collected) fee-daily))
@@ -106,7 +110,7 @@
 (define-public (withdraw-funds (amount uint))
   (begin
     (asserts! (is-eq tx-sender contract-owner) err-owner-only)
-    (try! (as-contract (stx-transfer? amount tx-sender contract-owner)))
+    (try! (as-contract (stx-transfer? amount (as-contract tx-sender) contract-owner)))
     (ok true)
   )
 )
@@ -126,11 +130,17 @@
 )
 
 (define-read-only (has-checked-in-today (user principal))
-  (ok (default-to false (map-get? check-in-status { user: user, day: (get-day-index) })))
+  (let ((current-day (get-day-index)))
+    (ok (default-to false (map-get? check-in-status { user: user, day: current-day })))
+  )
 )
 
 (define-read-only (has-claimed-initial-reward (user principal))
   (ok (default-to false (map-get? reward-claimed-initial user)))
+)
+
+(define-read-only (get-user-stats (user principal))
+  (ok (map-get? user-stats user))
 )
 
 
