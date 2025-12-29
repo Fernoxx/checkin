@@ -17,7 +17,7 @@ interface CheckinDashboardProps {
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS?.split('.')[0] || 'SP2MT5CDNVWS10W834069Q3GZWVDT9ATB91GTZPBV';
 const CONTRACT_NAME = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS?.split('.')[1] || 'checkin';
-const NETWORK_NAME = (process.env.NEXT_PUBLIC_NETWORK || 'testnet') as 'mainnet' | 'testnet' | 'devnet' | 'mocknet';
+const NETWORK_NAME = (process.env.NEXT_PUBLIC_NETWORK || 'mainnet') as 'mainnet' | 'testnet' | 'devnet' | 'mocknet';
 const NETWORK = networkFromName(NETWORK_NAME);
 
 export default function CheckinDashboard({ userData, userSession, onSignOut }: CheckinDashboardProps) {

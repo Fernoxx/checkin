@@ -20,7 +20,7 @@ const nextConfig = {
   transpilePackages: ['@stacks/connect', '@stacks/transactions', '@stacks/network'],
   env: {
     NEXT_PUBLIC_CONTRACT_ADDRESS: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || 'SP2MT5CDNVWS10W834069Q3GZWVDT9ATB91GTZPBV.checkin',
-    NEXT_PUBLIC_NETWORK: process.env.NEXT_PUBLIC_NETWORK || 'testnet',
+    NEXT_PUBLIC_NETWORK: process.env.NEXT_PUBLIC_NETWORK || 'mainnet',
   },
 };
 
