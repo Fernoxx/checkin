@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { openContractCall } from '@stacks/connect';
-import { fetchCallReadOnlyFunction, ClarityType } from '@stacks/transactions';
+import { fetchCallReadOnlyFunction, ClarityType, PostConditionMode } from '@stacks/transactions';
 import { networkFromName } from '@stacks/network';
 import { standardPrincipalCV, uintCV } from '@stacks/transactions';
 import { format } from 'date-fns';
@@ -115,22 +115,24 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
     setIsCheckingIn(true);
     try {
       // The contract handles STX transfers internally:
-      // - Tier 1: User pays 1 STX fee, receives 1.5 STX reward
-      // - Tier 2: User pays 0.2 STX fee, receives 0.25 STX reward
-      // The wallet will show the transaction details including STX transfers
+      // - Tier 1: User pays 1 STX fee, receives 1.5 STX reward (ONE TIME ONLY)
+      // - Tier 2: User pays 0.2 STX fee, receives 0.25 STX reward (DAILY)
+      // IMPORTANT: Set postConditionMode to 'Allow' so the contract can handle STX transfers
+      // Without this, Stacks Connect adds default post-conditions that conflict with internal transfers
       await openContractCall({
         network: NETWORK,
         contractAddress: CONTRACT_ADDRESS,
         contractName: CONTRACT_NAME,
         functionName: 'daily-check-in',
         functionArgs: [],
+        postConditionMode: PostConditionMode.Allow, // CRITICAL: Allow contract to handle STX transfers internally
         onFinish: (data: any) => {
           console.log('Checkin successful:', data);
           setHasCheckedInToday(true);
           // Reload data to show updated stats and reward pool
           setTimeout(() => {
             loadCheckinData();
-          }, 2000); // Wait 2 seconds for blockchain confirmation
+          }, 3000); // Wait 3 seconds for blockchain confirmation
           setIsCheckingIn(false);
         },
         onCancel: () => {
