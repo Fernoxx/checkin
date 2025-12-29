@@ -20,13 +20,19 @@ export default function Home() {
     // Only initialize on client side
     if (typeof window !== 'undefined') {
       import('@stacks/connect').then(({ AppConfig, UserSession }) => {
-        const appConfig = new AppConfig(['store_write', 'publish_data']);
-        const session = new UserSession({ appConfig });
-        setUserSession(session);
-        
-        if (session.isUserSignedIn()) {
-          setUserData(session.loadUserData());
+        try {
+          const appConfig = new AppConfig(['store_write', 'publish_data']);
+          const session = new UserSession({ appConfig });
+          setUserSession(session);
+          
+          if (session.isUserSignedIn()) {
+            setUserData(session.loadUserData());
+          }
+        } catch (error) {
+          console.error('Error initializing Stacks Connect:', error);
         }
+      }).catch((error) => {
+        console.error('Error loading Stacks Connect:', error);
       });
     }
   }, []);
@@ -49,7 +55,11 @@ export default function Home() {
 
         <main className="app-main">
           <div className="container">
-            {userData && userSession ? (
+            {isLoading ? (
+              <div style={{ textAlign: 'center', padding: '2rem' }}>
+                <p>Loading...</p>
+              </div>
+            ) : userData && userSession ? (
               <CheckinDashboard
                 userData={userData}
                 userSession={userSession}

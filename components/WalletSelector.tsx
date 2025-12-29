@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { authenticate } from '@stacks/connect';
-import { useAppKit } from '@reown/appkit/react';
 import styles from './WalletSelector.module.css';
 
 interface WalletSelectorProps {
@@ -10,15 +9,33 @@ interface WalletSelectorProps {
 }
 
 export default function WalletSelector({ onConnect }: WalletSelectorProps) {
-  const { open } = useAppKit();
   const [selectedMethod, setSelectedMethod] = useState<'stacks' | 'reown' | null>(null);
   const [hasProjectId, setHasProjectId] = useState(false);
+  const [appKitError, setAppKitError] = useState(false);
 
   useEffect(() => {
     // Check if WalletConnect Project ID is configured
     const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
     setHasProjectId(!!projectId && projectId.length > 0);
   }, []);
+
+  const handleReownConnect = async () => {
+    if (!hasProjectId) {
+      alert('WalletConnect Project ID is required. Please add NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID to your environment variables.');
+      return;
+    }
+    try {
+      const { useAppKit } = await import('@reown/appkit/react');
+      const { open } = useAppKit();
+      setSelectedMethod('reown');
+      onConnect();
+      open();
+    } catch (error) {
+      console.error('Error loading Reown AppKit:', error);
+      setAppKitError(true);
+      alert('WalletConnect is not available. Please use Stacks Wallets instead.');
+    }
+  };
 
   const handleStacksConnect = () => {
     setSelectedMethod('stacks');
