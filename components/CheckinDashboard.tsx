@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useConnect } from '@stacks/connect';
-import { callReadOnlyFunction } from '@stacks/transactions';
-import { StacksTestnet, StacksMainnet } from '@stacks/network';
+import { openContractCall } from '@stacks/connect';
+import { fetchCallReadOnlyFunction, ClarityType } from '@stacks/transactions';
+import { networkFromName } from '@stacks/network';
 import { standardPrincipalCV, uintCV } from '@stacks/transactions';
 import { format } from 'date-fns';
 import styles from './CheckinDashboard.module.css';
@@ -17,11 +17,10 @@ interface CheckinDashboardProps {
 
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS?.split('.')[0] || 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM';
 const CONTRACT_NAME = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS?.split('.')[1] || 'checkin';
-const NETWORK_NAME = process.env.NEXT_PUBLIC_NETWORK || 'testnet';
-const NETWORK = NETWORK_NAME === 'mainnet' ? new StacksMainnet() : new StacksTestnet();
+const NETWORK_NAME = (process.env.NEXT_PUBLIC_NETWORK || 'testnet') as 'mainnet' | 'testnet' | 'devnet' | 'mocknet';
+const NETWORK = networkFromName(NETWORK_NAME);
 
 export default function CheckinDashboard({ userData, userSession, onSignOut }: CheckinDashboardProps) {
-  const { doContractCall } = useConnect();
   const [isCheckingIn, setIsCheckingIn] = useState(false);
   const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
   const [hasClaimedInitial, setHasClaimedInitial] = useState(false);
@@ -39,7 +38,7 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
     setIsLoading(true);
     try {
       // Check if user has checked in today
-      const hasCheckedInResult = await callReadOnlyFunction({
+      const hasCheckedInResult = await fetchCallReadOnlyFunction({
         network: NETWORK,
         contractAddress: CONTRACT_ADDRESS,
         contractName: CONTRACT_NAME,
@@ -48,10 +47,12 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
         senderAddress: userAddress,
       });
 
-      setHasCheckedInToday(hasCheckedInResult.value === true);
+      // fetchCallReadOnlyFunction returns ClarityValue, need to check type
+      const hasCheckedIn = hasCheckedInResult.type === ClarityType.BoolTrue;
+      setHasCheckedInToday(hasCheckedIn);
 
       // Check if user has claimed initial reward
-      const hasClaimedResult = await callReadOnlyFunction({
+      const hasClaimedResult = await fetchCallReadOnlyFunction({
         network: NETWORK,
         contractAddress: CONTRACT_ADDRESS,
         contractName: CONTRACT_NAME,
@@ -60,10 +61,11 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
         senderAddress: userAddress,
       });
 
-      setHasClaimedInitial(hasClaimedResult.value === true);
+      const hasClaimed = hasClaimedResult.type === ClarityType.BoolTrue;
+      setHasClaimedInitial(hasClaimed);
 
       // Get user stats
-      const statsResult = await callReadOnlyFunction({
+      const statsResult = await fetchCallReadOnlyFunction({
         network: NETWORK,
         contractAddress: CONTRACT_ADDRESS,
         contractName: CONTRACT_NAME,
@@ -72,12 +74,17 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
         senderAddress: userAddress,
       });
 
-      if (statsResult.value) {
-        setUserStats(statsResult.value as UserStats);
+      // statsResult is a tuple, extract the values
+      if (statsResult.type === ClarityType.Tuple) {
+        const tuple = statsResult as any;
+        setUserStats({
+          'total-checkins': tuple.data['total-checkins']?.value?.toString() || '0',
+          'last-checkin-day': tuple.data['last-checkin-day']?.value?.toString() || '0',
+        });
       }
 
       // Get fee summary
-      const feeResult = await callReadOnlyFunction({
+      const feeResult = await fetchCallReadOnlyFunction({
         network: NETWORK,
         contractAddress: CONTRACT_ADDRESS,
         contractName: CONTRACT_NAME,
@@ -86,8 +93,16 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
         senderAddress: userAddress,
       });
 
-      if (feeResult.value) {
-        setFeeSummary(feeResult.value as FeeSummary);
+      // feeResult is a tuple, extract the values
+      if (feeResult.type === ClarityType.Tuple) {
+        const tuple = feeResult as any;
+        const feeSummary: FeeSummary = {
+          'fee-initial': { value: tuple.data['fee-initial']?.value?.toString() || '1000000' },
+          'reward-initial': { value: tuple.data['reward-initial']?.value?.toString() || '1500000' },
+          'fee-daily': { value: tuple.data['fee-daily']?.value?.toString() || '200000' },
+          'reward-daily': { value: tuple.data['reward-daily']?.value?.toString() || '250000' },
+        };
+        setFeeSummary(feeSummary);
       }
     } catch (error) {
       console.error('Error loading checkin data:', error);
@@ -99,7 +114,11 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
   const handleCheckin = async () => {
     setIsCheckingIn(true);
     try {
-      await doContractCall({
+      // The contract handles STX transfers internally:
+      // - Tier 1: User pays 1 STX fee, receives 1.5 STX reward
+      // - Tier 2: User pays 0.2 STX fee, receives 0.25 STX reward
+      // The wallet will show the transaction details including STX transfers
+      await openContractCall({
         network: NETWORK,
         contractAddress: CONTRACT_ADDRESS,
         contractName: CONTRACT_NAME,
@@ -108,7 +127,10 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
         onFinish: (data: any) => {
           console.log('Checkin successful:', data);
           setHasCheckedInToday(true);
-          loadCheckinData();
+          // Reload data to show updated stats and reward pool
+          setTimeout(() => {
+            loadCheckinData();
+          }, 2000); // Wait 2 seconds for blockchain confirmation
           setIsCheckingIn(false);
         },
         onCancel: () => {
@@ -117,6 +139,7 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
       });
     } catch (error) {
       console.error('Error checking in:', error);
+      alert(`Error: ${error instanceof Error ? error.message : 'Failed to initiate transaction'}`);
       setIsCheckingIn(false);
     }
   };
@@ -130,16 +153,16 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
       return {
         tier: 2,
         name: 'Daily Checkin',
-        fee: feeSummary ? formatSTX(feeSummary['fee-daily'].value) : '0.20',
-        reward: feeSummary ? formatSTX(feeSummary['reward-daily'].value) : '0.25',
+        fee: feeSummary ? formatSTX(feeSummary['fee-daily']?.value || '200000') : '0.20',
+        reward: feeSummary ? formatSTX(feeSummary['reward-daily']?.value || '250000') : '0.25',
         color: 'var(--tier2)',
       };
     }
     return {
       tier: 1,
       name: 'Welcome Bonus',
-      fee: feeSummary ? formatSTX(feeSummary['fee-initial'].value) : '1.00',
-      reward: feeSummary ? formatSTX(feeSummary['reward-initial'].value) : '1.50',
+        fee: feeSummary ? formatSTX(feeSummary['fee-initial']?.value || '1000000') : '1.00',
+        reward: feeSummary ? formatSTX(feeSummary['reward-initial']?.value || '1500000') : '1.50',
       color: 'var(--tier1)',
     };
   };
@@ -208,11 +231,11 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
                 <button
                   className={styles.checkinButton}
                   onClick={handleCheckin}
-                  disabled={isCheckingIn || !feeSummary?.['contract-active'].value}
+                  disabled={isCheckingIn || !feeSummary?.['contract-active']?.value || hasCheckedInToday}
                 >
                   {isCheckingIn
                     ? 'Processing...'
-                    : feeSummary?.['contract-active'].value === false
+                    : feeSummary?.['contract-active']?.value === false
                     ? 'Contract Inactive'
                     : `Check In Now (${tierInfo.fee} STX)`}
                 </button>
@@ -234,14 +257,14 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
                   <div className={styles.statCard}>
                     <div className={styles.statIcon}>💰</div>
                     <div className={styles.statValue}>
-                      {formatSTX(feeSummary['current-reward-pool'].value)}
+                      {formatSTX(feeSummary?.['current-reward-pool']?.value || '0')}
                     </div>
                     <div className={styles.statLabel}>Reward Pool</div>
                   </div>
                   <div className={styles.statCard}>
                     <div className={styles.statIcon}>📈</div>
                     <div className={styles.statValue}>
-                      {formatSTX(feeSummary['total-rewards-distributed'].value)}
+                      {formatSTX(feeSummary?.['total-rewards-distributed']?.value || '0')}
                     </div>
                     <div className={styles.statLabel}>Total Distributed</div>
                   </div>
@@ -263,23 +286,23 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
                 <div className={styles.summaryGrid}>
                   <div>
                     <span>Total Fees Collected:</span>
-                    <strong>{formatSTX(feeSummary['total-fees-collected'].value)} STX</strong>
+                    <strong>{formatSTX(feeSummary?.['total-fees-collected']?.value || '0')} STX</strong>
                   </div>
                   <div>
                     <span>Reward Pool:</span>
-                    <strong>{formatSTX(feeSummary['current-reward-pool'].value)} STX</strong>
+                    <strong>{formatSTX(feeSummary?.['current-reward-pool']?.value || '0')} STX</strong>
                   </div>
                   <div>
                     <span>Status:</span>
                     <strong
                       style={{
                         color:
-                          feeSummary['contract-active'].value === true
+                          feeSummary?.['contract-active']?.value === true
                             ? 'var(--success)'
                             : 'var(--error)',
                       }}
                     >
-                      {feeSummary['contract-active'].value === true ? 'Active' : 'Inactive'}
+                      {feeSummary?.['contract-active']?.value === true ? 'Active' : 'Inactive'}
                     </strong>
                   </div>
                 </div>

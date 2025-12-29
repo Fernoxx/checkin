@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Turbopack configuration (Next.js 16 default)
+  turbopack: {},
+  // Webpack fallback for compatibility
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
@@ -17,5 +20,5 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
 

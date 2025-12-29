@@ -8,14 +8,14 @@ export interface UserData {
 }
 
 export interface FeeSummary {
-  'total-fees-collected': { value: string };
-  'total-rewards-distributed': { value: string };
-  'current-reward-pool': { value: string };
-  'contract-active': { value: boolean };
   'fee-initial': { value: string };
   'reward-initial': { value: string };
   'fee-daily': { value: string };
   'reward-daily': { value: string };
+  'total-fees-collected'?: { value: string };
+  'total-rewards-distributed'?: { value: string };
+  'current-reward-pool'?: { value: string };
+  'contract-active'?: { value: boolean | string };
 }
 
 export interface UserStats {

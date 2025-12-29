@@ -1,27 +1,41 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AppConfig, UserSession } from '@stacks/connect';
+import dynamicImport from 'next/dynamic';
 import { Providers } from './providers';
-import CheckinDashboard from '@/components/CheckinDashboard';
-import WalletSelector from '@/components/WalletSelector';
 
-const appConfig = new AppConfig(['store_write', 'publish_data']);
-const userSession = new UserSession({ appConfig });
+// Disable static generation - this page needs to be dynamic
+export const dynamic = 'force-dynamic';
+
+// Dynamically import components that use Stacks Connect (client-only)
+const CheckinDashboard = dynamicImport(() => import('@/components/CheckinDashboard'), { ssr: false });
+const WalletSelector = dynamicImport(() => import('@/components/WalletSelector'), { ssr: false });
 
 export default function Home() {
   const [userData, setUserData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [userSession, setUserSession] = useState<any>(null);
 
   useEffect(() => {
-    if (userSession.isUserSignedIn()) {
-      setUserData(userSession.loadUserData());
+    // Only initialize on client side
+    if (typeof window !== 'undefined') {
+      import('@stacks/connect').then(({ AppConfig, UserSession }) => {
+        const appConfig = new AppConfig(['store_write', 'publish_data']);
+        const session = new UserSession({ appConfig });
+        setUserSession(session);
+        
+        if (session.isUserSignedIn()) {
+          setUserData(session.loadUserData());
+        }
+      });
     }
   }, []);
 
   const handleSignOut = () => {
-    userSession.signUserOut();
-    setUserData(null);
+    if (userSession) {
+      userSession.signUserOut();
+      setUserData(null);
+    }
   };
 
   return (
@@ -35,7 +49,7 @@ export default function Home() {
 
         <main className="app-main">
           <div className="container">
-            {userData ? (
+            {userData && userSession ? (
               <CheckinDashboard
                 userData={userData}
                 userSession={userSession}

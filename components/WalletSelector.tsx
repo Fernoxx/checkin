@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useConnect } from '@stacks/connect';
+import { authenticate } from '@stacks/connect';
 import { useAppKit } from '@reown/appkit/react';
 import styles from './WalletSelector.module.css';
 
@@ -10,8 +10,7 @@ interface WalletSelectorProps {
 }
 
 export default function WalletSelector({ onConnect }: WalletSelectorProps) {
-  const { doOpenAuth } = useConnect();
-  const { open, isConnected } = useAppKit();
+  const { open } = useAppKit();
   const [selectedMethod, setSelectedMethod] = useState<'stacks' | 'reown' | null>(null);
   const [hasProjectId, setHasProjectId] = useState(false);
 
@@ -24,7 +23,18 @@ export default function WalletSelector({ onConnect }: WalletSelectorProps) {
   const handleStacksConnect = () => {
     setSelectedMethod('stacks');
     onConnect();
-    doOpenAuth();
+    authenticate({
+      appDetails: {
+        name: 'Stacks Xverse Checkin',
+        icon: typeof window !== 'undefined' ? window.location.origin + '/icon.png' : '',
+      },
+      redirectTo: '/',
+      onFinish: () => {
+        if (typeof window !== 'undefined') {
+          window.location.reload();
+        }
+      },
+    });
   };
 
   const handleReownConnect = () => {
