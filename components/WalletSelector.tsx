@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useConnect } from '@stacks/connect';
+import { useAppKit } from '@reown/appkit/react';
 import styles from './WalletSelector.module.css';
 
 interface WalletSelectorProps {
@@ -10,8 +11,15 @@ interface WalletSelectorProps {
 
 export default function WalletSelector({ onConnect }: WalletSelectorProps) {
   const { doOpenAuth } = useConnect();
-  // const { open } = useAppKit(); // Will be enabled when Reown AppKit is fully configured
+  const { open, isConnected } = useAppKit();
   const [selectedMethod, setSelectedMethod] = useState<'stacks' | 'reown' | null>(null);
+  const [hasProjectId, setHasProjectId] = useState(false);
+
+  useEffect(() => {
+    // Check if WalletConnect Project ID is configured
+    const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID;
+    setHasProjectId(!!projectId && projectId.length > 0);
+  }, []);
 
   const handleStacksConnect = () => {
     setSelectedMethod('stacks');
@@ -20,10 +28,13 @@ export default function WalletSelector({ onConnect }: WalletSelectorProps) {
   };
 
   const handleReownConnect = () => {
+    if (!hasProjectId) {
+      alert('WalletConnect Project ID is required. Please add NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID to your environment variables.');
+      return;
+    }
     setSelectedMethod('reown');
     onConnect();
-    // open(); // Will be enabled when Reown AppKit is fully configured
-    alert('WalletConnect integration coming soon! For now, please use Stacks Connect (Xverse/Leather).');
+    open();
   };
 
   return (
@@ -65,9 +76,10 @@ export default function WalletSelector({ onConnect }: WalletSelectorProps) {
             <button
               className={styles.connectButton}
               onClick={handleReownConnect}
-              disabled={selectedMethod === 'stacks'}
+              disabled={selectedMethod === 'stacks' || !hasProjectId}
+              title={!hasProjectId ? 'WalletConnect Project ID required' : ''}
             >
-              Connect via WalletConnect
+              {!hasProjectId ? 'Project ID Required' : 'Connect via WalletConnect'}
             </button>
           </div>
         </div>

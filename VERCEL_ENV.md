@@ -22,7 +22,7 @@ NEXT_PUBLIC_NETWORK=testnet
 - **Default**: `testnet`
 - **Required**: ✅ Yes
 
-### 2. WalletConnect/Reown AppKit (OPTIONAL)
+### 2. WalletConnect/Reown AppKit (REQUIRED for WalletConnect)
 
 ```
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your-project-id-here
@@ -33,8 +33,11 @@ NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your-project-id-here
   2. Sign up/Login
   3. Create a new project
   4. Copy the Project ID
-- **Required**: ❌ No (only needed for WalletConnect support)
-- **Note**: Stacks Connect (Xverse/Leather) works without this
+- **Required**: ✅ **YES** (if you want WalletConnect functionality)
+- **Note**: 
+  - Stacks Connect (Xverse/Leather) works **without** this
+  - WalletConnect/Reown AppKit **requires** this Project ID to function
+  - Without it, the WalletConnect button will be disabled
 
 ### 3. Chainhook Webhook (OPTIONAL)
 

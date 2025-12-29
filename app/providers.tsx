@@ -2,10 +2,9 @@
 
 import { Connect } from '@stacks/connect';
 import { AppConfig, UserSession } from '@stacks/connect';
-import { WagmiProvider, createConfig, http } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { mainnet, sepolia } from 'wagmi/chains';
 import { createAppKit } from '@reown/appkit/react';
+import { WagmiProvider } from 'wagmi';
 
 // Stacks Connect configuration
 const appConfig = new AppConfig(['store_write', 'publish_data']);
@@ -21,27 +20,42 @@ const metadata = {
   icons: [`${typeof window !== 'undefined' ? window.location.origin : ''}/icon.png`],
 };
 
-// Create basic Wagmi config for Reown AppKit (when Project ID is provided)
 const queryClient = new QueryClient();
 
-// Create Wagmi config (simplified for now - Reown AppKit will enhance this)
-const wagmiConfig = createConfig({
-  chains: [mainnet, sepolia],
-  transports: {
-    [mainnet.id]: http(),
-    [sepolia.id]: http(),
-  },
-});
+// Initialize Reown AppKit if Project ID is provided
+// Note: Reown AppKit requires a Project ID to function
+let wagmiConfig: any = null;
+if (projectId && projectId.length > 0) {
+  try {
+    wagmiConfig = createAppKit({
+      adapters: [],
+      networks: [],
+      projectId,
+      metadata,
+      features: {
+        analytics: true,
+        email: false,
+        socials: false,
+      },
+    });
+  } catch (error) {
+    console.warn('Failed to initialize Reown AppKit. Project ID may be invalid:', error);
+  }
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  // For now, we'll use Stacks Connect as primary
-  // Reown AppKit integration can be added when Project ID is configured
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
+    <>
+      {wagmiConfig ? (
+        <WagmiProvider config={wagmiConfig}>
+          <QueryClientProvider client={queryClient}>
+            <StacksProvider>{children}</StacksProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
+      ) : (
         <StacksProvider>{children}</StacksProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+      )}
+    </>
   );
 }
 

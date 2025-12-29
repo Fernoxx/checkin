@@ -18,12 +18,13 @@ NEXT_PUBLIC_NETWORK=testnet
 
 ## Optional Variables
 
-### 3. WalletConnect Project ID
+### 3. WalletConnect Project ID (REQUIRED for WalletConnect)
 ```
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your-project-id
 ```
 - **Get from**: https://cloud.reown.com
-- **Required**: ❌ No (only for WalletConnect support)
+- **Required**: ✅ **YES** (if you want WalletConnect/Reown AppKit to work)
+- **Note**: Stacks Connect works without this, but WalletConnect button will be disabled
 
 ### 4. Chainhook Auth Secret
 ```
