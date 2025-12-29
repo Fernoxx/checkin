@@ -54,16 +54,6 @@ export default function WalletSelector({ onConnect }: WalletSelectorProps) {
     });
   };
 
-  const handleReownConnect = () => {
-    if (!hasProjectId) {
-      alert('WalletConnect Project ID is required. Please add NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID to your environment variables.');
-      return;
-    }
-    setSelectedMethod('reown');
-    onConnect();
-    open();
-  };
-
   return (
     <div className={styles.walletSelector}>
       <div className={styles.walletSelectorCard}>
