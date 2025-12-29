@@ -93,10 +93,10 @@ export default function WalletSelector({ onConnect }: WalletSelectorProps) {
             <button
               className={styles.connectButton}
               onClick={handleReownConnect}
-              disabled={selectedMethod === 'stacks' || !hasProjectId}
-              title={!hasProjectId ? 'WalletConnect Project ID required' : ''}
+              disabled={selectedMethod === 'stacks' || !hasProjectId || appKitError}
+              title={!hasProjectId ? 'WalletConnect Project ID required' : appKitError ? 'WalletConnect unavailable' : ''}
             >
-              {!hasProjectId ? 'Project ID Required' : 'Connect via WalletConnect'}
+              {appKitError ? 'Unavailable' : !hasProjectId ? 'Project ID Required' : 'Connect via WalletConnect'}
             </button>
           </div>
         </div>
