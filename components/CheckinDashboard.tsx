@@ -15,7 +15,7 @@ interface CheckinDashboardProps {
   onSignOut: () => void;
 }
 
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS?.split('.')[0] || 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM';
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS?.split('.')[0] || 'SP2MT5CDNVWS10W834069Q3GZWVDT9ATB91GTZPBV';
 const CONTRACT_NAME = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS?.split('.')[1] || 'checkin';
 const NETWORK_NAME = (process.env.NEXT_PUBLIC_NETWORK || 'testnet') as 'mainnet' | 'testnet' | 'devnet' | 'mocknet';
 const NETWORK = networkFromName(NETWORK_NAME);
@@ -231,7 +231,7 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
                 <button
                   className={styles.checkinButton}
                   onClick={handleCheckin}
-                  disabled={isCheckingIn || !feeSummary?.['contract-active']?.value || hasCheckedInToday}
+                  disabled={isCheckingIn || hasCheckedInToday || isLoading}
                 >
                   {isCheckingIn
                     ? 'Processing...'

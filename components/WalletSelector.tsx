@@ -25,13 +25,39 @@ export default function WalletSelector({ onConnect }: WalletSelectorProps) {
       return;
     }
     try {
-      const { useAppKit } = await import('@reown/appkit/react');
-      const { open } = useAppKit();
+      // Initialize Reown AppKit dynamically
+      const { createAppKit } = await import('@reown/appkit/react');
+      const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '';
+      
+      if (!projectId) {
+        throw new Error('WalletConnect Project ID not found');
+      }
+      
+      const metadata = {
+        name: 'Stacks Xverse Checkin',
+        description: 'Daily checkin app for Stacks Builder Rewards',
+        url: typeof window !== 'undefined' ? window.location.origin : '',
+        icons: [`${typeof window !== 'undefined' ? window.location.origin : ''}/icon.png`],
+      };
+      
+      const wagmiConfig = createAppKit({
+        adapters: [],
+        networks: [],
+        projectId,
+        metadata,
+        features: {
+          analytics: true,
+          email: false,
+          socials: false,
+        },
+      });
+      
+      // Open the modal
+      wagmiConfig.open();
       setSelectedMethod('reown');
       onConnect();
-      open();
     } catch (error) {
-      console.error('Error loading Reown AppKit:', error);
+      console.error('Error initializing Reown AppKit:', error);
       setAppKitError(true);
       alert('WalletConnect is not available. Please use Stacks Wallets instead.');
     }

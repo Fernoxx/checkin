@@ -19,7 +19,7 @@ const nextConfig = {
   // Ensure proper module resolution
   transpilePackages: ['@stacks/connect', '@stacks/transactions', '@stacks/network'],
   env: {
-    NEXT_PUBLIC_CONTRACT_ADDRESS: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || 'ST1PQHQKV0RJXZFY1DGX8MNSNYVE3VGZJSRTPGZGM.checkin',
+    NEXT_PUBLIC_CONTRACT_ADDRESS: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || 'SP2MT5CDNVWS10W834069Q3GZWVDT9ATB91GTZPBV.checkin',
     NEXT_PUBLIC_NETWORK: process.env.NEXT_PUBLIC_NETWORK || 'testnet',
   },
 };
