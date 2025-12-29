@@ -54,7 +54,7 @@
 (define-private (get-day-of-week)
     (let
         (
-            (time (unwrap-panic (get-block-info? time (- block-height u1))))
+            (time (unwrap-panic (get-block-info? time (- stacks-block-height u1))))
             (days-since-epoch (/ time u86400))
         )
         (mod (+ days-since-epoch u4) u7)

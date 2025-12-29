@@ -6,6 +6,41 @@ telemetry = true
 cache_dir = "./.clarinet/cache"
 requirements = []
 
+[contracts.monday]
+path = "contracts/monday.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.tuesday]
+path = "contracts/tuesday.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.wednesday]
+path = "contracts/wednesday.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.thursday]
+path = "contracts/thursday.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.friday]
+path = "contracts/friday.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.saturday]
+path = "contracts/saturday.clar"
+clarity_version = 3
+epoch = "3.0"
+
+[contracts.sunday]
+path = "contracts/sunday.clar"
+clarity_version = 3
+epoch = "3.0"
+
 
 [contracts.checkin]
 path = "contracts/checkin.clar"
