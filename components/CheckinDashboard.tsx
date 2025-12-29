@@ -235,8 +235,10 @@ export default function CheckinDashboard({ userData, userSession, onSignOut }: C
                 >
                   {isCheckingIn
                     ? 'Processing...'
-                    : feeSummary?.['contract-active']?.value === false
-                    ? 'Contract Inactive'
+                    : isLoading
+                    ? 'Loading...'
+                    : hasCheckedInToday
+                    ? 'Already Checked In Today'
                     : `Check In Now (${tierInfo.fee} STX)`}
                 </button>
               </div>
