@@ -31,19 +31,15 @@ export default function Home() {
     }
     
     let mounted = true;
-    let initTimer: NodeJS.Timeout;
     
     const initialize = async () => {
       try {
-        // Use dynamic import with error handling
-        const stacksConnect = await import('@stacks/connect').catch((err) => {
-          console.error('Failed to load @stacks/connect module:', err);
-          throw err;
-        });
+        // Use dynamic import but with proper error handling
+        const stacksModule = await import('@stacks/connect');
+        const { AppConfig, UserSession } = stacksModule;
         
         if (!mounted) return;
         
-        const { AppConfig, UserSession } = stacksConnect;
         const appConfig = new AppConfig(['store_write', 'publish_data']);
         const session = new UserSession({ appConfig });
         
@@ -67,11 +63,11 @@ export default function Home() {
     };
     
     // Small delay to ensure DOM is ready
-    initTimer = setTimeout(initialize, 50);
+    const initTimer = setTimeout(initialize, 100);
 
     return () => {
       mounted = false;
-      if (initTimer) clearTimeout(initTimer);
+      clearTimeout(initTimer);
     };
   }, []);
 

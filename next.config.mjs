@@ -1,9 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  // Turbopack configuration (Next.js 16 default)
+  // Turbopack config (empty to allow webpack)
   turbopack: {},
-  // Webpack fallback for compatibility
+  // Webpack configuration for better compatibility with Stacks packages
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
