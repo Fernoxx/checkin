@@ -53,10 +53,6 @@
   transition: all 0.2s;
 }
 
-.signOutButton:hover {
-  background: var(--surface-light);
-}
-
 .checkinCard {
   background: var(--surface);
   border: 1px solid var(--border);
