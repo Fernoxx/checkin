@@ -62,13 +62,6 @@ export default function Home() {
       }
     };
 
-  const handleSignOut = () => {
-    if (userSession) {
-      userSession.signUserOut();
-      setUserData(null);
-    }
-  };
-
         <main className="app-main">
           <div className="container">
             {initError ? (
