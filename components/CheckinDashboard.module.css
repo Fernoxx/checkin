@@ -110,13 +110,6 @@
   color: white;
 }
 
-.tierLabel {
-  font-size: 0.75rem;
-  opacity: 0.9;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
 .tierName {
   font-size: 1.1rem;
   font-weight: 600;
