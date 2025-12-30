@@ -78,15 +78,6 @@ export default function Home() {
     }
   };
 
-  return (
-    <div className="app">
-        <header className="app-header">
-          <div className="container">
-            <h1>🎯 Stacks Xverse Checkin</h1>
-            <p className="subtitle">Daily checkin rewards for Stacks builders</p>
-          </div>
-        </header>
-
         <main className="app-main">
           <div className="container">
             {initError ? (
