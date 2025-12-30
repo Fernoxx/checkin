@@ -62,13 +62,6 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-.checkinHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
 .checkinHeader h3 {
   font-size: 1.5rem;
 }
