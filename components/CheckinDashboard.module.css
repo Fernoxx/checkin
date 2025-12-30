@@ -53,6 +53,10 @@
   transition: all 0.2s;
 }
 
+.signOutButton:hover {
+  background: var(--surface-light);
+}
+
 .checkinCard {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -60,6 +64,13 @@
   padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.checkinHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
 }
 
 .checkinHeader h3 {
@@ -79,6 +90,17 @@
   padding: 2rem 0;
 }
 
+.successIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.checkinSuccess h4 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--success);
+}
+
 .checkinAction {
   text-align: center;
   padding: 1rem 0;
@@ -92,6 +114,19 @@
   border-radius: 12px;
   margin-bottom: 1.5rem;
   color: white;
+}
+
+.tierLabel {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tierName {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
 }
 
 .feeRewardInfo {
@@ -279,4 +314,3 @@
     transform: rotate(90deg);
   }
 }
-
