@@ -61,6 +61,31 @@ export default function Home() {
         }
       }
     };
+    
+    // Small delay to ensure DOM is ready
+    const initTimer = setTimeout(initialize, 100);
+
+    return () => {
+      mounted = false;
+      clearTimeout(initTimer);
+    };
+  }, []);
+
+  const handleSignOut = () => {
+    if (userSession) {
+      userSession.signUserOut();
+      setUserData(null);
+    }
+  };
+
+  return (
+    <div className="app">
+        <header className="app-header">
+          <div className="container">
+            <h1>🎯 Stacks Xverse Checkin</h1>
+            <p className="subtitle">Daily checkin rewards for Stacks builders</p>
+          </div>
+        </header>
 
         <main className="app-main">
           <div className="container">
@@ -96,4 +121,3 @@ export default function Home() {
       </div>
   );
 }
-
