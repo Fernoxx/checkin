@@ -105,12 +105,6 @@
   color: white;
 }
 
-.tierName {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-top: 0.25rem;
-}
-
 .feeRewardInfo {
   display: flex;
   align-items: center;
