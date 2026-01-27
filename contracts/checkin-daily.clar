@@ -39,22 +39,6 @@
                 last-checkin: current-block,
                 total-checkins: (+ current-total u1)
               }
-            )
-            ;; Fee is already received by the contract
-            (ok true)))
-        ;; If no STX with transaction, still allow checkin (fee should have been sent separately)
-        (begin
-          (let ((current-total (if (is-none existing-data) 
-                                 u0 
-                                 (get total-checkins (unwrap! existing-data {last-checkin: u0, total-checkins: u0})))))
-            (map-set checkin-data 
-              {who: sender} 
-              {
-                last-checkin: current-block,
-                total-checkins: (+ current-total u1)
-              }
-            )
-            (ok true))))))
 
 ;; Read-only functions to query checkin data
 (define-read-only (get-checkin-data (who principal))
