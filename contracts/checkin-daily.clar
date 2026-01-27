@@ -26,23 +26,6 @@
         (current-block (block-height))
         (existing-data (map-get? checkin-data {who: sender}))
        )
-    ;; Check if STX was sent with this transaction (for fee verification)
-    (if (>= transfer-amount CHECKIN_FEE)
-        (begin
-          ;; Store or update checkin data
-          (let ((current-total (if (is-none existing-data) 
-                                 u0 
-                                 (get total-checkins (unwrap! existing-data {last-checkin: u0, total-checkins: u0})))))
-            (map-set checkin-data 
-              {who: sender} 
-              {
-                last-checkin: current-block,
-                total-checkins: (+ current-total u1)
-              }
-
-;; Read-only functions to query checkin data
-(define-read-only (get-checkin-data (who principal))
-  (map-get? checkin-data {who: who})
 )
 
 (define-read-only (get-last-checkin (who principal))
