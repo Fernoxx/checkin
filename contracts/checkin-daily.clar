@@ -66,9 +66,3 @@
     (get last-checkin 
       (unwrap! (map-get? checkin-data {who: who}) {last-checkin: u0, total-checkins: u0})))
 )
-
-(define-read-only (get-total-checkins (who principal))
-  (default-to u0 
-    (get total-checkins 
-      (unwrap! (map-get? checkin-data {who: who}) {last-checkin: u0, total-checkins: u0})))
-)
