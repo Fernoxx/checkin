@@ -6,16 +6,6 @@
 ;; The 0.2 STX fee should be sent to the contract address BEFORE calling checkin()
 ;; Or modify to use stx-get-transfer-amount if STX is sent WITH the contract call
 
-(define-constant CHECKIN_FEE u200000) ;; 0.2 STX in micro-STX (0.2 * 1,000,000)
-
-(define-map checkin-data
-  {who: principal}
-  {
-    last-checkin: uint,
-    total-checkins: uint
-  }
-)
-
 ;; Public function to check in
 ;; Option 1: If STX is sent WITH this transaction, it will verify the fee
 ;; Option 2: If STX was sent separately, this just records the checkin
