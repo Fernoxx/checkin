@@ -1,10 +1,6 @@
 ;; Stacks Checkin Contract
-;; Requires 0.2 STX fee to check in (sent separately to contract address)
+;; Requires 0.1 STX fee to check in
 ;; Stores checkin data per address
-
-;; Note: The fee verification happens off-chain
-;; The 0.2 STX fee should be sent to the contract address BEFORE calling checkin()
-;; Or modify to use stx-get-transfer-amount if STX is sent WITH the contract call
 
 (define-constant CHECKIN_FEE u100000) ;; 0.1 STX in micro-STX (0.1 * 1,000,000)
 
@@ -22,37 +18,30 @@
   (let (
         (sender tx-sender)
         (current-block stacks-block-height)
-        (existing-data (map-get? checkin-data {who: sender}))
+        (existing-data (default-to {last-checkin: u0, total-checkins: u0} (map-get? checkin-data {who: sender})))
        )
     ;; Transfer the fee from the user to the contract
     (try! (stx-transfer? CHECKIN_FEE sender (as-contract tx-sender)))
     
     ;; Store or update checkin data
-    (let ((current-total (if (is-none existing-data) 
-                            u0 
-                            (get total-checkins (unwrap! existing-data {last-checkin: u0, total-checkins: u0})))))
-      (map-set checkin-data 
-        {who: sender} 
-        {
-          last-checkin: current-block,
-          total-checkins: (+ current-total u1)
-        }
-      )
-      (ok true))))
+    (ok (map-set checkin-data 
+      {who: sender} 
+      {
+        last-checkin: current-block,
+        total-checkins: (+ (get total-checkins existing-data) u1)
+      }
+    )))
+)
 
 ;; Read-only functions to query checkin data
 (define-read-only (get-checkin-data (who principal))
-  (map-get? checkin-data {who: who})
+  (ok (default-to {last-checkin: u0, total-checkins: u0} (map-get? checkin-data {who: who})))
 )
 
 (define-read-only (get-last-checkin (who principal))
-  (default-to u0 
-    (get last-checkin 
-      (unwrap! (map-get? checkin-data {who: who}) {last-checkin: u0, total-checkins: u0})))
+  (ok (get last-checkin (default-to {last-checkin: u0, total-checkins: u0} (map-get? checkin-data {who: who}))))
 )
 
 (define-read-only (get-total-checkins (who principal))
-  (default-to u0 
-    (get total-checkins 
-      (unwrap! (map-get? checkin-data {who: who}) {last-checkin: u0, total-checkins: u0})))
+  (ok (get total-checkins (default-to {last-checkin: u0, total-checkins: u0} (map-get? checkin-data {who: who}))))
 )
