@@ -21,7 +21,7 @@
 (define-public (checkin)
   (let (
         (sender tx-sender)
-        (current-block block-height)
+        (current-block stacks-block-height)
         (existing-data (map-get? checkin-data {who: sender}))
        )
     ;; Transfer the fee from the user to the contract
