@@ -25,15 +25,7 @@ const WalletSelector = dynamicImport(() => import('@/components/WalletSelector')
     }
     
     let mounted = true;
-    
-    const initialize = async () => {
-      try {
-        // Use dynamic import but with proper error handling
-        const stacksModule = await import('@stacks/connect');
-        const { AppConfig, UserSession } = stacksModule;
-        
-        if (!mounted) return;;
-      
+  
 
           </div>
         </main>
