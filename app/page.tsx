@@ -101,15 +101,6 @@ export default function Home() {
               <div style={{ textAlign: 'center', padding: '2rem' }}>
                 <p>Initializing...</p>
               </div>
-            ) : userData && userSession ? (
-              <CheckinDashboard
-                userData={userData}
-                userSession={userSession}
-                onSignOut={handleSignOut}
-              />
-            ) : (
-              <WalletSelector onConnect={() => setIsLoading(true)} />
-            )}
           </div>
         </main>
 
