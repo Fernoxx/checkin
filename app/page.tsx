@@ -17,12 +17,6 @@ const WalletSelector = dynamicImport(() => import('@/components/WalletSelector')
   loading: () => <div style={{ textAlign: 'center', padding: '2rem' }}>Loading wallet selector...</div>
 });
 
-export default function Home() {
-  const [userData, setUserData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [userSession, setUserSession] = useState<any>(null);
-  const [initError, setInitError] = useState<string | null>(null);
-
   useEffect(() => {
     // Only initialize on client side
     if (typeof window === 'undefined') {
