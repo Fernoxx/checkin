@@ -16,13 +16,6 @@ const WalletSelector = dynamicImport(() => import('@/components/WalletSelector')
   ssr: false,
   loading: () => <div style={{ textAlign: 'center', padding: '2rem' }}>Loading wallet selector...</div>
 });
-
-  useEffect(() => {
-    // Only initialize on client side
-    if (typeof window === 'undefined') {
-      setIsLoading(false);
-      return;
-    }
     
     let mounted = true;
   
