@@ -65,16 +65,6 @@ export default function Home() {
     // Small delay to ensure DOM is ready
     const initTimer = setTimeout(initialize, 100);
 
-    return () => {
-      mounted = false;
-      clearTimeout(initTimer);
-    };
-  }, []);
-
-  const handleSignOut = () => {
-    if (userSession) {
-      userSession.signUserOut();
-      setUserData(null);
     }
   };
 
