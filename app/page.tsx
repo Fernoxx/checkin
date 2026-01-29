@@ -57,33 +57,7 @@ export default function Home() {
         setInitError(errorMessage);
       } finally {
         if (mounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-    
-    // Small delay to ensure DOM is ready
-    const initTimer = setTimeout(initialize, 100);
 
-    }
-  };
-
-  return (
-
-        <main className="app-main">
-          <div className="container">
-            {initError ? (
-              <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>
-                <h3>Initialization Error</h3>
-                <p>{initError}</p>
-                <p style={{ fontSize: '0.9rem', marginTop: '1rem' }}>
-                  Please refresh the page or check your browser console for more details.
-                </p>
-              </div>
-            ) : isLoading ? (
-              <div style={{ textAlign: 'center', padding: '2rem' }}>
-                <p>Initializing...</p>
-              </div>
           </div>
         </main>
 
