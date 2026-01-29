@@ -32,14 +32,7 @@ const WalletSelector = dynamicImport(() => import('@/components/WalletSelector')
         const stacksModule = await import('@stacks/connect');
         const { AppConfig, UserSession } = stacksModule;
         
-        if (!mounted) return;
-        
-        const appConfig = new AppConfig(['store_write', 'publish_data']);
-        const session = new UserSession({ appConfig });
-        
-        if (!mounted) return;
-        
-        setUserSession(session);
+        if (!mounted) return;;
       
 
           </div>
