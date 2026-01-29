@@ -12,14 +12,6 @@ const CheckinDashboard = dynamicImport(() => import('@/components/CheckinDashboa
   ssr: false,
   loading: () => <div style={{ textAlign: 'center', padding: '2rem' }}>Loading dashboard...</div>
 });
-const WalletSelector = dynamicImport(() => import('@/components/WalletSelector'), { 
-  ssr: false,
-  loading: () => <div style={{ textAlign: 'center', padding: '2rem' }}>Loading wallet selector...</div>
-});
-    
-    let mounted = true;
-  
-
           </div>
         </main>
 
