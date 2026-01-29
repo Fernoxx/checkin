@@ -46,17 +46,7 @@ export default function Home() {
         if (!mounted) return;
         
         setUserSession(session);
-        
-        if (session.isUserSignedIn()) {
-          setUserData(session.loadUserData());
-        }
-      } catch (error) {
-        if (!mounted) return;
-        console.error('Error initializing Stacks Connect:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Failed to initialize Stacks Connect';
-        setInitError(errorMessage);
-      } finally {
-        if (mounted) {
+      
 
           </div>
         </main>
